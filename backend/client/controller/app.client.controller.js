@@ -53,6 +53,7 @@ module.exports.getClient  = async (req , res) =>{
       
 }
 
+
 module.exports.updateClient  = async  (req , res) =>{
     const {body} = req;
     ////validation de la donnée
@@ -99,15 +100,15 @@ module.exports.getAllClient  = async (req , res) =>{
      //extraction de la donnée
      const {params} = req;
      ////validation de la donnée
-    if(params.key == 'clients'){
-        Client.findAll()
-        .then((client)=>{
-            res.status(200).json(client);
-        })
-        .catch((e)=>{
-            res.status(500).json({message :`ERROR_GETTING_CLIENT_BY_ID : ${e}`});
-        });
-    }
+
+    Client.findAll()
+    .then((client)=>{
+        res.status(200).json(client);
+    })
+    .catch((e)=>{
+        res.status(500).json({message :`ERROR_GETTING_CLIENT_BY_ID : ${e}`});
+    });
+   
      
      
  

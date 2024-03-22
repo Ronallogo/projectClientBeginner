@@ -31,12 +31,7 @@ module.exports.client_ValidationUpdate  = async (body) =>{
 }
 
 
-module.exports.client_Validation  = async () =>{
-
-}
-module.exports.client_Validation  = async () =>{
-
-}
+ 
 
 
 
