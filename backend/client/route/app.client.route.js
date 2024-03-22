@@ -1,13 +1,17 @@
-const { createClient } = require('../controller/app.client.controller');
+const { createClient, getClient, getAllClient, updateClient, deleteClient } = require('../controller/app.client.controller');
 
  
 const router =  require('express').Router();
 
 router.post('/createClient' ,createClient );
 
-router.post('/getClient' ,);
+router.get('/getClient' ,getClient);
 
-router.post('/updateClient' , );
+router.get('/getAllClient' ,getAllClient);
+
+router.put('/updateClient' ,  updateClient );
+
+router.delete('/deleteClient' , deleteClient);
 
  
 
