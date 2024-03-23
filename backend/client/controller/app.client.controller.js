@@ -1,4 +1,4 @@
-const { Client } = require("../model/app.client.model");
+const { Client } = require("../../config/models/app.model");
 const { client_ValidationCreation, client_ValidationGetting, client_ValidationUpdate } = require("../validation/app.client.validation");
 
 
@@ -58,6 +58,7 @@ module.exports.updateClient  = async  (req , res) =>{
     const {body} = req;
     ////validation de la donnée
 
+
     const {error} =  client_ValidationUpdate(body);
     if(error) return res.status(500).json({message :`ERROR_UPDATE_CLIENT_NAME_1 : ${error}`});
 
@@ -79,7 +80,9 @@ module.exports.updateClient  = async  (req , res) =>{
     } 
 
     else if(body.email){
-        Client.findOne({where :{_client_email : body.email}})
+        
+   
+      Client.findOne({where :{_client_email : body.email}})
         .then((client) =>{
             client.update({_client_email : body.new_email});
             res.status(200).json({ message : "RESUEST_UPDATING_CLIENT_SUCCEEDED ",    value : client} )
@@ -95,11 +98,6 @@ module.exports.updateClient  = async  (req , res) =>{
 
 
 module.exports.getAllClient  = async (req , res) =>{
-
-
-     //extraction de la donnée
-     const {params} = req;
-     ////validation de la donnée
 
     Client.findAll()
     .then((client)=>{
