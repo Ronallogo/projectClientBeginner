@@ -16,6 +16,8 @@ app.use('/app/client' , require('./client/route/app.client.route.js'));
 
 app.use('/app/product' , require('./product/route/app.product.routes.js'));
 
+app.use('/app/command' ,  require('./command/route/app.command.route.js'));
+
 ///routes 
  
 

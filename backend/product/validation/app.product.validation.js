@@ -4,7 +4,8 @@ module.exports.product_ValidationCreation  = async (body) =>{
     const schemaProduct = Joi.object({
         name  : Joi.string().min(1).max(40).trim().required(),
         type  : Joi.string().min(1).max(40).trim().required(),
-        stock : Joi.number()
+        stock : Joi.number(),
+        price : Joi.number()
 
 
     });
@@ -25,14 +26,16 @@ module.exports.product_ValidationGetting  = async (body) =>{
 
 
 
-module.exports.product_ValidationUpdate  = async (body) =>{
+module.exports.product_ValidationUpdate = async (body) =>{
     const schemaProduct = Joi.object({
-        data  : Joi.string().min(1).max(40).trim().required(),
-        new_data  : Joi.string().min(1).max(40).trim().required(),
+        entity : Joi.string().min(1).max(40).trim().required() || Joi.number().min(1).max(40).trim().required() ,
+        new_data  : Joi.string().min(1).max(40).trim().required() || Joi.number().min(1).max(40).trim().required(),
+        
+
     });
 
     return schemaProduct.validate(body);
 
-
-
 }
+ 
+

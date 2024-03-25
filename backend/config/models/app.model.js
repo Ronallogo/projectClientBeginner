@@ -51,6 +51,12 @@ const Product = ConnectDB.define('Product' , {
         defaultValue : "Unknown"
     },
 
+    _product_price :{
+        type :Sequelize.INTEGER,
+        allowNull :false,
+        defaultValue : 10000
+    },
+
     _product_stock :{
         type :Sequelize.INTEGER,
         allowNull :false,
@@ -75,6 +81,12 @@ const Command = ConnectDB.define('Command' , {
     },
 
     _nbr_product_sold :{
+        type :Sequelize.INTEGER ,
+        allowNull :false
+    },
+
+    
+    _command_total_cost :{
         type :Sequelize.INTEGER ,
         allowNull :false
     },

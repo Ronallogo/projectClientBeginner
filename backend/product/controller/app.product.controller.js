@@ -1,10 +1,12 @@
-const { Product } = require("../../config/models/app.model");
+const {Product} = require("../../config/models/app.model");
+const { ProductGetterById, ProductGetterByName } = require("../getter_setter/app.product.getter");
+const { ProductSetterName, ProductSetterType, ProductSetterPrice } = require("../getter_setter/app.product.setter");
 const { product_ValidationCreation, product_ValidationGetting, product_ValidationUpdate } = require("../validation/app.product.validation");
 
 module.exports.CreateProduct = async (req , res) =>{
     const {body} = req;
     ////validation de la donnée
-    console.log({...body})
+  
     const {error} = await product_ValidationCreation({...body});
     if(error) return res.status(500).json({message :`ERROR_CREATION_PRODUCT_1 : ${error}`});
     ///creation d'un  product
@@ -12,7 +14,8 @@ module.exports.CreateProduct = async (req , res) =>{
     Product.create({
         _product_name : body.name , 
         _product_type : body.type,
-        _product_stock : JSON.parse(body.stock)
+        _product_stock : JSON.parse(body.stock),
+        _product_price : JSON.parse(body.price)
     })
     .then((product)=>{
         res.status(200).json( product)
@@ -53,26 +56,22 @@ module.exports.getProduct = async (req , res) =>{
     const {error} =  product_ValidationGetting(body.name || body.id);
     if(error) return res.status(500).json({message :`ERROR_GETTING_PRODUCT_1 : ${error}`});
 
-    ////recuperation  de la personne chercher
-    if(body.id){ 
-        ////recuperation de la donnée
-        Product.findByPk(body.id)
-        .then((product)=>{
-            res.status(200).json(product);
-        })
-        .catch((e)=>{
-            res.status(500).json({message :`ERROR_GETTING_PRODUCT_BY_ID : ${e}`});
-        });
-    } 
-    else if(body.name){
-        Product.findOne({where:{_product_name : body.name} })
-        .then((product)=>{
-            res.status(200).json(product);
-        })
-        .catch((e)=>{
-        res.status(500).json({message :`ERROR_GETTING_PRODUCT_BY_NAME : ${e}`});
+    
+    try {
+        if(body.id){ 
+            ////recuperation de la donnée
+          const productFindById = await ProductGetterById(body.id);
+          /////ckeck if the value is empty
+         (productFindById)? res.status(200).json(productFindById): res.status(500).json({message : 'product not found'});
+        } 
+        else if(body.name){
+            ///same thing like above
+            const productFindByName = await ProductGetterByName(body.name);
+            (productFindByName)? res.status(200).json(productFindByName): res.status(500).json({message : 'product not found'});
 
-        });
+        }
+    } catch (error) {
+        res.status(500).json({message : 'something is going on  badly  in  getting product' , value :e})
     }
 }
 
@@ -92,45 +91,47 @@ module.exports.updateProduct = async (req , res) =>{
 
     
     ////recuperation  de la personne chercher
-    if(body.name){ 
+    //// ENTITY PEUT ETRE LE NOM OU ID //////
+    try {
 
-        Product.findOne({where :{_product_name : body.name}})
-       .then((product) =>{
-            /////mise a jour de la donnée
-            product.update({_product_name : body.new_name});
-            res.status(200).json({ message : "RESUEST_UPDATING_PRODUCT_SUCCEEDED ",    value : product} )
-       })
-       .catch((e)=>{
-        ////cas d erreur
-        res.status(500).json({message :`ERROR_UPDATE_CLIENT_NAME_2 : ${e}`});
-
-        });      
-    
-    } 
-
-    else if(body.type){
-
-        try {
-            const productFind =  await Product.findOne({where :{_product_type : body.type}})
-            const productUpdate = await productFind.update({_product_type : body.new_type})
-            res.status(200).json({ message : "RESUEST_UPDATING_CLIENT_SUCCEEDED ",    value : productUpdate} )
-
-        } catch (error) {
-            res.status(500).json({message :`ERROR_UPDATE_CLIENT_NAME_2 : ${e}`});
-        }
-         
+        if(body.entity && body.new_name){ 
+            //// get the product with modification 
+            const productModified  = await ProductSetterName(body.name , body.new_name);
+            /////response
+            res.status(200).json({ message : "REQUEST_UPDATING_PRODUCT_SUCCEEDED ",    value : productModified} );
+            
      
-    }
-    else if(body.stock){
+            
 
-        Product.findOne({where :{_product_type : body.type}})
-        .then((product) =>{
+        } 
+    
+        else if(body.new_type && body.entity){
+                /////get the product with the updated Type 
+                
+                const productModified = await  ProductSetterType( body.new_type , body.entity);
+                ////response
+                res.status(200).json({ message : "REQUEST_UPDATING_PRODUCT_SUCCEEDED ",    value : productModified} );
+                
+     
+         
+        }
+        else if(body.new_stock && body.entity){
+            ///get product with the modified stock
+            const productModified = await  ProductSetterType(body.new_stock , body.entity);
+            ////response
+            res.status(200).json({ message : "REQUEST_UPDATING_PRODUCT_SUCCEEDED ",    value : productModified} );
+           
+             
+    
+        }
+        else if(body.new_price && body.entity){
+            const productModified = await  ProductSetterPrice(body.new_price, body.entity);
+            ////response
+            res.status(200).json({ message : "REQUEST_UPDATING_PRODUCT_SUCCEEDED ",    value : productModified} );
+        }
+    } catch (error) {
 
-            client.update({_product_type : body.new_type});
-            res.status(200).json({ message : "RESUEST_UPDATING_PRODUCT_SUCCEEDED ",    value : product} )
-        })
-        .catch((e)=>{  res.status(500).json({message :`ERROR_UPDATE_PRODUCT_NAME_2 : ${e}`});  });
-
+        res.status(500).json({message :`ERROR_UPDATE_PRODUCT_: ${error}`});
     }
 
 }
@@ -141,7 +142,7 @@ module.exports.updateProduct = async (req , res) =>{
 module.exports.deleteProduct = async (req , res) =>{
 
     const {body} = req ;
-    console.log(body.id);
+  
 
     if(body.id){
         Product.findByPk(body.id)
